@@ -1,0 +1,103 @@
+---
+title: "WEEK4 COURSE PROJECT PML"
+author: "Radha Parikh"
+date: "23rd October' 2020"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+---
+
+This is the week 4 final course project of the practical machine learning also in this I will be using rstudio markdown and knitr. proceeding for the analysis
+
+##Introduction of the project
+
+Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible to collect a large amount of data about personal activity. In this project, your goal will be to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways.
+
+with the help of this data, we can predicting whether the individual is doing the exercises properly or not. From this, we will also predict the numbering of exercise like the 
+order of them basically
+
+First step of the analysis is loading the data.
+Secondly, we perform some exploratory data analysis.
+Lastly we fit our model to predict the manner in which they perform the exercise
+
+```{r}
+
+library(caret)
+library(readr)
+library(rpart)
+library(randomForest)
+```
+
+## Getting the Data
+```{r}
+getwd()
+```
+
+```{r}
+#Getting the Data
+###reading the training dataset
+pml_training <- read.csv("pml-training.csv")
+summary(pml_training)
+#reading the test dataset
+pml_testing <- read.csv("pml-testing.csv")
+summary(pml_testing)
+```
+
+##Exploratory Data Analysis
+
+```{r}
+#Exploratory Data Analysis
+###for obtaining the type of each column
+str(pml_training)
+###for checking the number of rows and columns in the dataset, the train dataset contains 19622 rows and 160 columns.
+dim(pml_training)
+###taking a count for the final results
+table(pml_training$classe)
+```
+#Cleaning the Data
+Dealing with missing values
+
+
+```{r}
+#Exploratory Data Analysis
+###for obtaining the type of each column
+Count_na = sapply(1:dim(pml_training)[2],function(x)sum(is.na(pml_training[,x])))
+List_na = which(Count_na>0)
+colnames(pml_training[,c(1:7)])
+```
+###removing the null values from the training set
+
+```{r}
+pml_training = pml_training[,-List_na]
+pml_training = pml_training[,-c(1:7)]
+pml_training$classe = factor(pml_training$classe)
+###removing the null values from the test set
+pml_testing = pml_testing[,-List_na]
+pml_testing = pml_testing[,-c(1:7)]
+```
+#Building the Model
+Decision Tree
+```{r}
+#Exploratory Data Analysis
+###for obtaining the type of each column
+Classifier = rpart(formula = classe~.,data=pml_training)
+y_pred = predict(Classifier,pml_testing)
+print(y_pred)
+y_pred_actual = predict(Classifier,pml_testing,type="class")
+print(y_pred_actual)
+###confusion Matrix
+cm = table(pml_testing[-1],y_pred_actual)
+print(cm)
+```
+#Random Forest
+
+```{r}
+#Exploratory Data Analysis
+###for obtaining the type of each column
+rfclassifier = randomForest(formula = classe~.,data=pml_training, ntree = 10)
+y_pred_rf = predict(rfclassifier,pml_testing)
+print(y_pred_rf)
+```
+
+
